@@ -1,0 +1,4 @@
+main-class = en.ibbo.hades.HelloWorld
+name = HelloWorld
+author = Thomas Ibbotson
+version = 0.1
