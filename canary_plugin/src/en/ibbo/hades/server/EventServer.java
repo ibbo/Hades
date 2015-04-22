@@ -1,4 +1,4 @@
-package hades.server;
+package en.ibbo.hades.server;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

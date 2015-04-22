@@ -1,4 +1,4 @@
-package hades.server;
+package en.ibbo.hades.server;
 
 public final class SwitchEvent implements SendableEvent {
 

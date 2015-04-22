@@ -1,7 +1,7 @@
-package hades.server.test;
+package en.ibbo.hades.server.test;
 
-import hades.server.EventServer;
-import hades.server.SendableEvent;
+import en.ibbo.hades.server.EventServer;
+import en.ibbo.hades.server.SendableEvent;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;

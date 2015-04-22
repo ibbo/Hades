@@ -1,6 +1,6 @@
-package hades.server.test;
+package en.ibbo.hades.server.test;
 
-import hades.server.SendableEvent;
+import en.ibbo.hades.server.SendableEvent;
 
 public class TestEvent implements SendableEvent {
     @Override

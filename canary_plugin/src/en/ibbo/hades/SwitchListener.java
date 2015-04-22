@@ -1,22 +1,26 @@
-package hades;
+package en.ibbo.hades;
 
 import com.google.common.collect.ImmutableMap;
-import net.canarymod.api.factory.ChatComponentFactory;
+import en.ibbo.hades.server.SendableEvent;
+import en.ibbo.hades.server.SwitchEvent;
 import net.canarymod.api.world.blocks.Block;
 import net.canarymod.api.world.blocks.BlockType;
-import net.canarymod.api.world.blocks.properties.BlockBooleanProperty;
 import net.canarymod.api.world.blocks.properties.BlockProperty;
 import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.player.BlockRightClickHook;
-import net.canarymod.hook.world.BlockUpdateHook;
 import net.canarymod.plugin.PluginListener;
 
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
-/**
- * Created by thoma_000 on 13/04/2015.
- */
 public class SwitchListener implements PluginListener {
+
+    private final BlockingQueue<SendableEvent> eventQueue;
+
+    public SwitchListener(BlockingQueue<SendableEvent> eventQueue) {
+        this.eventQueue = eventQueue;
+    }
+
     @HookHandler
     public void onSwitchClick(BlockRightClickHook blockRightClickHook) {
         Block block = blockRightClickHook.getBlockClicked();
@@ -24,7 +28,11 @@ public class SwitchListener implements PluginListener {
         if (type.equals(BlockType.Lever)) {
             ImmutableMap<BlockProperty, Comparable> properties = block.getProperties();
             for (Map.Entry<BlockProperty, Comparable> prop: properties.entrySet()) {
-                System.out.println(prop.getValue());
+                if (prop.getKey().getName().equals("powered")) {
+                    Boolean value = (Boolean)prop.getValue();
+                    String id = "1";
+                    eventQueue.add(new SwitchEvent(id, !value));
+                }
             }
         }
     }
