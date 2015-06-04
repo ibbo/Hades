@@ -1,7 +1,7 @@
 package en.ibbo.hades;
 
+import en.ibbo.hades.server.ConnectionServer;
 import en.ibbo.hades.server.EventSender;
-import en.ibbo.hades.server.EventServer;
 import net.canarymod.Canary;
 import net.canarymod.plugin.Plugin;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class Underworld extends Plugin {
 
-    private EventServer eventServer;
+    private ConnectionServer connectionServer;
     private EventSender eventSender;
     private ExecutorService executorService;
 
@@ -20,7 +20,7 @@ public class Underworld extends Plugin {
         int port = 18000;
         try {
             eventSender = new EventSender();
-            eventServer = new EventServer(port, eventSender);
+            connectionServer = new ConnectionServer(port, eventSender);
         } catch (IOException e) {
             getLogman().error("Failed to create event server.", e);
         }
@@ -31,7 +31,7 @@ public class Underworld extends Plugin {
 
         executorService = Executors.newFixedThreadPool(2);
         executorService.submit(eventSender);
-        executorService.submit(eventServer);
+        executorService.submit(connectionServer);
         return true;
     }
 
