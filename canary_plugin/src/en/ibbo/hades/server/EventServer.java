@@ -6,68 +6,42 @@ import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class EventServer implements Runnable {
-    private final ServerSocket serverSocket;
-
+    private final EventSender eventSender;
     private final int port;
 
-    private final BlockingQueue<SendableEvent> eventQueue = new ArrayBlockingQueue<>(10);
-
-    public EventServer(int port) throws IOException {
-        serverSocket = new ServerSocket(port);
+    public EventServer(int port, EventSender eventSender) throws IOException {
         this.port = port;
-        serverSocket.setSoTimeout(10000);
-    }
-
-    public BlockingQueue<SendableEvent> getEventQueue() {
-        return eventQueue;
+        this.eventSender = eventSender;
     }
 
     public void run() {
-        while(true) {
-            Socket server = null;
-            try {
-                // TODO: Change this with proper logging
-                System.out.println("Accepting connections on port: " + port);
-                server = serverSocket.accept();
-                System.out.println("Connected to client, sending events.");
-                sendEventsToClient(server);
-            } catch (SocketTimeoutException s) {
-                System.out.println("Socket timed out, no connection made, retrying.");
-            } catch (IOException ex) {
-                System.out.println("Error while running event server.");
-                ex.printStackTrace(System.out);
-                break;
-            } finally {
-                if (server != null) {
-                    try {
-                        server.close();
-                    } catch (IOException e) {
-                        e.printStackTrace(System.out);
-                    }
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            while (true) {
+                Socket newSocket;
+                try {
+                    // TODO: Change this with proper logging
+                    System.out.println("Accepting connections on port: " + port);
+                    newSocket = serverSocket.accept();
+                    System.out.println("Connected to new client: " + newSocket.getRemoteSocketAddress());
+                    eventSender.addConnection(new Connection(newSocket));
+                } catch (SocketTimeoutException s) {
+                    // Do nothing, just wait for more connections
+                } catch (IOException ex) {
+                    System.out.println("Error while running event server.");
+                    ex.printStackTrace(System.out);
+                    break;
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private void sendEventsToClient(Socket server) throws IOException {
-        try (Writer outputStream = new OutputStreamWriter(server.getOutputStream(), "UTF-8")) {
-            while (true) {
-                SendableEvent event;
-                try {
-                    event = eventQueue.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace(System.out);
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-                System.out.println("Sending: " + event.getEventData());
-                outputStream.write(event.getEventData());
-                outputStream.flush();
-            }
-        }
-    }
 }

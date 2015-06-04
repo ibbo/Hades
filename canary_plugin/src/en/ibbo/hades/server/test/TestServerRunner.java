@@ -1,5 +1,6 @@
 package en.ibbo.hades.server.test;
 
+import en.ibbo.hades.server.EventSender;
 import en.ibbo.hades.server.EventServer;
 import en.ibbo.hades.server.SendableEvent;
 
@@ -9,9 +10,11 @@ import java.util.concurrent.Executors;
 
 public class TestServerRunner {
     public static void main(String[] args) throws Exception {
-        EventServer eventServer = new EventServer(18000);
-        BlockingQueue<SendableEvent> eventQueue = eventServer.getEventQueue();
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        EventSender eventSender = new EventSender();
+        EventServer eventServer = new EventServer(18000, eventSender);
+        BlockingQueue<SendableEvent> eventQueue = eventSender.getEventQueue();
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        executorService.submit(eventSender);
         executorService.submit(eventServer);
         DummyEventCreator eventCreator = new DummyEventCreator(eventQueue);
         executorService.submit(eventCreator);
